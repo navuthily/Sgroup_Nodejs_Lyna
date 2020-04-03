@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+var bodyParser = require('body-parser')
 // const expressLayouts = require('express-ejs-layouts');
 const methodOverride = require('method-override');
 const {
@@ -25,7 +26,16 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(methodOverride('_method'));
+//app.use(methodOverride('_method'));
+app.use(express.urlencoded({ extended: true }))
+app.use(methodOverride(function (req, res) {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    // look in urlencoded POST bodies and delete it
+    var method = req.body._method
+    delete req.body._method
+    return method
+  }
+}))
 // Setting up sessions
 app.set('trust proxy', 1); // trust first proxy
 app.use(sessionModules);
